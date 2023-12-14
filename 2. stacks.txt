@@ -1,0 +1,188 @@
+#include <iostream>
+using namespace std;
+
+typedef struct node{
+    char data;
+    struct node *next;
+};
+
+class stack{
+    node *top;
+    public:
+        stack(){
+            top = NULL;
+        }
+        int isEmpty(){
+            if(top == NULL){
+                return 1;
+            }
+            return 0;
+        }
+        void push(char x){
+            node *p;
+            p = new node();
+            p->data = x;
+            p->next = top;
+            top = p;
+        }
+        char pop(){
+            node *p;
+            char x;
+            p = top;
+            x = p->data;
+            top = top->next;
+            delete(p);
+            return x;
+        }
+        char topdata(){
+            return top->data;
+        }
+};
+
+int precedence(char c){
+    if(c == '^'){
+        return 3;
+    }else if(c == '*' || c == '/'){
+        return 2;
+    }else if(c == '+' || c == '-'){
+        return 1;
+    }
+    return -1;
+};
+
+string infixToPostfix(string s){
+    stack st;
+    string result;
+    for(int i = 0; i<s.length(); i++){
+        if((s[i]>='a' && s[i]<='z') || (s[i]>='A' && s[i]<'Z') || (s[i]>='0' && s[i]<='9')){
+            result+=s[i];
+        }else if(s[i] == '('){
+            st.push(s[i]);
+        }else if(s[i] == ')'){
+            while(st.isEmpty()==0 && st.topdata()!='('){
+                result+=st.topdata();
+                st.pop();
+            }
+            if(st.isEmpty() == 0){
+                st.pop();
+            }
+        }else{
+            while(st.isEmpty() == 0 && precedence(st.topdata())>=precedence(s[i])){
+                result+=st.topdata();
+                st.pop();
+            }
+            st.push(s[i]);
+        }
+    }
+    while(st.isEmpty() == 0){
+        result+=st.topdata();
+        st.pop();
+    }
+    return result;
+};
+
+string reverse(string s){
+    int n = s.length();
+    for (int i = 0; i < n / 2; i++){
+        swap(s[i], s[n - i - 1]);
+    }   
+    for(int i = 0; i<n; i++){
+        if(s[i] == '('){
+            s[i] = ')';
+        }else if (s[i] == ')'){
+            s[i] = '(';
+        }
+    }
+    return s;
+};
+
+string infixToPrefix(string s){
+    string str = reverse(s);
+    string newStr = infixToPostfix(str);
+    string str2 = reverse(newStr);
+    return str2;
+};
+
+int evaluatePostfix(string s){
+    stack st;
+    int operand1, operand2;
+    for(int i = 0; i<s.length(); i++){
+        if(s[i]>='0' && s[i]<='9'){
+            st.push(s[i]-'0');
+        }else{
+            operand1 = st.topdata();
+            st.pop();
+            operand2 = st.topdata();
+            st.pop();
+        }
+        switch(s[i]){
+            case '+':
+                st.push(operand1+operand2);
+                break;
+            case '-':
+                st.push(operand1-operand2);
+                break;
+            case '/':
+                st.push(operand2/operand1);
+                break;
+            case '*':
+                st.push(operand1*operand2);
+                break;
+            default:
+                break;                       
+        }
+    }
+    return st.topdata();
+};
+
+int evaluatePrefix(string s){
+    string str = reverse(s);
+    int result = evaluatePostfix(str);
+    return result;
+}
+
+int main(){
+    int choice;
+    string s;
+    char ask;
+    do{
+        cout<<"1. Infix to Postfix\n2. Infix to Prefix\n3. Evaluate Postfix\n4. Evaluate Prefix\n5. Exit"<<endl;
+        cout<<"Enter your choice: ";
+        cin>>choice;
+        switch(choice){ 
+            case 1:
+                cout<<"Enter Expression: ";
+                cin>>s;
+                cout<<"Postfix Expression: "<<infixToPostfix(s)<<endl;
+                break;
+            case 2:
+                cout<<"Enter Expression: ";
+                cin>>s;
+                cout<<"Prefix Expression: "<<infixToPrefix(s)<<endl;
+                break;   
+            case 3:
+                cout<<"Enter Expression: ";
+                cin>>s;
+                cout<<"Answer : "<<evaluatePostfix(s)<<endl;
+                break; 
+            case 4:
+                cout<<"Enter Expression: ";
+                cin>>s;
+                cout<<"Answer : "<<evaluatePrefix(s)<<endl;
+                break;
+            case 5:
+                return 0;     
+            default:
+                cout<<"Invalid choice!!!"<<endl;
+                break;         
+        }
+        cout<<"Do you want to continue(y/n)?: ";
+        cin>>ask;
+    }while(ask == 'y' || ask == 'Y');
+
+   // infixToPostfix("(a-b/c)*(a/k-l)") => abc/-ak/l-*
+   // infixToPrefix("(a-b/c)*(a/k-l)") => *-a/bc-/akl
+   // evaluatePostfix("46+2/5*7+") => 32
+   // evaluatePrefix("-+7*45+20") => 25
+    return 0;
+}

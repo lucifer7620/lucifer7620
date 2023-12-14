@@ -1,0 +1,158 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+typedef struct stud{
+    int rollNo;
+    char name[20];
+    float marks;
+};
+void create(stud s[20], int n){
+    for(int i = 0; i<n; i++){
+        cout<<"Enter name: ";
+        cin>>s[i].name;
+        cout<<"Enter roll no.: ";
+        cin>>s[i].rollNo;
+        cout<<"Enter marks: ";
+        cin>>s[i].marks;
+    }
+};
+void display(stud s[20], int n){
+    for(int i = 0; i<n; i++){
+        cout<<"Name: "<<s[i].name<<endl;
+        cout<<"Roll no.: "<<s[i].rollNo<<endl;
+        cout<<"Marks: "<<s[i].marks<<endl;
+        cout<<endl;
+    }
+};
+void bubbleSort(stud s[20], int n){
+    for(int i = 0; i<n; i++){
+        for(int j = 1; j<n; j++){
+            if(s[j].rollNo<s[j-1].rollNo){
+                stud temp = s[j];
+                s[j] = s[j-1];
+                s[j-1] = temp;
+            }
+        }
+    }
+    display(s, n);
+};
+void insertionSort(stud s[20], int n){
+    for(int i = 0; i<n-1; i++){
+        for(int j = i+1; j>0; j--){
+            if(strcmp(s[j-1].name, s[j].name)){
+                stud temp = s[j];
+                s[j] = s[j-1];
+                s[j-1] = temp;
+            }
+        }
+    }
+};
+void quickSort(stud s[20],int n, int low, int high){
+    if(low>= high){
+        return;
+    }
+    int start = low;
+    int end = high;
+    int mid = start+(end-start)/2;
+    int pivot = s[mid].marks;
+    while(start<=end){
+        while(s[start].marks<pivot){
+            start++;
+        }while(s[end].marks>pivot){
+            end--;
+        }
+        if(start<=end){
+            stud temp = s[start];
+            s[start] = s[end];
+            s[end] = temp;
+            start++;
+            end--;
+        }
+    }
+    quickSort(s,n, start, high);
+    quickSort(s,n, low, end);
+    display(s, n);
+};
+void linearSearch(stud s[20],int n, float target){
+    for(int i = 0; i<n; i++){
+        if(s[i].marks == target){
+            cout<<"{Name: "<<s[i].name<<", Roll no.: "<<s[i].rollNo<<", Marks: "<<s[i].marks<<"}"<<endl;
+        }
+    }
+};
+int binarySearch(stud s[20],int n, int start, int end, char search[20]){
+    insertionSort(s, n);
+    int mid;
+    while(start<=end){
+        mid=start+(end-start)/2;
+        if(strcmp(search,s[mid].name)==0){
+            return mid;
+        }
+        else if(strcmp(search,s[mid].name)<0){
+            end=mid-1;
+        }
+        else{
+            start=mid+1;
+        }
+    }
+return -1;
+}
+
+int main(){
+    stud s[20];
+    int choice, n, index;
+    float target;
+    char search[20];
+    char ask;
+    do{
+    cout<<"1. Create database\n2. Display database\n3. Bubble Sort\n4. Insertion Sort\n5. Quick Sort\n6. Linear Search\n7. Binary Search\n8. Exit"<<endl;
+    cout<<"Enter your choice: ";
+    cin>>choice;
+    switch(choice){
+        case 1:
+        cout<<"Enter number of records: ";
+        cin>>n;
+        create(s, n);
+        break;
+        case 2:
+        display(s, n);
+        break;
+        case 3:
+        bubbleSort(s, n);
+        break;
+        case 4:
+        insertionSort(s, n);
+        display(s, n);
+        break;
+        case 5:
+        quickSort(s, n, 0, n-1);
+        break;
+        case 6:
+        cout<<"Enter target: ";
+        cin>>target;
+        linearSearch(s, n, target);
+        break;
+        case 7:
+        cout<<"Enter target: ";
+        cin>>search;
+        index = binarySearch(s, n, 0, n, search);
+        if(index == -1){
+            cout<<"Data not found"<<endl;
+        }else{
+            cout<<"Data found at index: "<< index <<endl;
+        }
+        break;
+        case 8:
+        return 0;
+        break;
+        default:
+        cout<<"Invalid Choice!!!";
+        break;
+    }
+    cout<< "Do you want to continue?(y/n): ";
+    cin>>ask;
+    }while(ask == 'y' || ask == 'Y');
+    
+    return 0;
+}
